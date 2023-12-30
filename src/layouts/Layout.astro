@@ -6,6 +6,8 @@ import '../styles/syntax-coloring.css'
 import GoogleAnalytics from '../components/GoogleAnalytics.astro'
 import SearchModal from '../components/SearchModal.astro'
 import SearchButton from '../components/SearchButton.astro'
+import icon from '../images/icon.jpg'
+import { Image } from 'astro:assets'
 
 export interface Props {
   title: string
@@ -49,8 +51,8 @@ if (database.Icon && database.Icon.Type === 'file') {
 }
 ---
 
-<!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns#">
+<!doctype html>
+<html lang="ja" prefix="og: https://ogp.me/ns#">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="max-image-preview:large" />
@@ -74,57 +76,46 @@ if (database.Icon && database.Icon.Type === 'file') {
       integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0"
       crossorigin="anonymous"
     />
+    <script>
+      window.twttr = (function (d, s, id) {
+        var js,
+          fjs = d.getElementsByTagName(s)[0],
+          t = window.twttr || {}
+        if (d.getElementById(id)) return t
+        js = d.createElement(s)
+        js.id = id
+        js.src = 'https://platform.twitter.com/widgets.js'
+        fjs.parentNode.insertBefore(js, fjs)
+
+        t._e = []
+        t.ready = function (f) {
+          t._e.push(f)
+        }
+
+        return t
+      })(document, 'script', 'twitter-wjs')
+    </script>
   </head>
   <body>
     <GoogleAnalytics trackingId={PUBLIC_GA_TRACKING_ID} />
-    <div class="container">
-      <header>
-        {
-          coverImageURL && (
-            <div class="cover">
-              <img src={coverImageURL} alt="Site cover image" loading="lazy" />
-            </div>
-          )
-        }
+    <div>
+      <header class="relative pt-6">
+        <a class="hover:opacity-80" href="/">
+          <Image
+            src={icon}
+            alt="icon"
+            class="border-4 border-white w-16 h-16 absolute rounded-full top-2 left-4"
+          /></a
+        >
+
+        <div class="absolute top-2 right-4">
+          <SearchButton />
+        </div>
       </header>
 
       <div>
         <main>
           <div class="content">
-            <header>
-              <h1>
-                <a href={getNavLink('/')}>
-                  {
-                    database.Icon && database.Icon.Type === 'emoji' ? (
-                      <>
-                        <span>{database.Icon.Emoji}</span>
-                        {database.Title}
-                      </>
-                    ) : database.Icon && database.Icon.Type === 'external' ? (
-                      <>
-                        <img src={database.Icon.Url} alt="Site icon image" />
-                        {database.Title}
-                      </>
-                    ) : database.Icon && database.Icon.Type === 'file' ? (
-                      <>
-                        <img
-                          src={customIconURL}
-                          class="custom-icon"
-                          alt="Site icon image"
-                        />
-                        {database.Title}
-                      </>
-                    ) : (
-                      database.Title
-                    )
-                  }
-                </a>
-              </h1>
-              <div class="description">
-                {database.Description}
-              </div>
-            </header>
-
             <slot name="main" />
 
             <footer>
@@ -139,8 +130,9 @@ if (database.Icon && database.Icon.Type === 'file') {
         </main>
 
         <aside>
-          <SearchButton />
-          <slot name="aside" />
+          <div class="contents">
+            <slot name="aside" />
+          </div>
         </aside>
       </div>
     </div>
@@ -155,16 +147,34 @@ if (database.Icon && database.Icon.Type === 'file') {
 </html>
 
 <style>
+  body {
+    background: rgb(250, 250, 250);
+  }
   .container {
     min-height: 100vh;
   }
 
   .container > div {
     display: flex;
-    max-width: 1280px;
+  }
+
+  .global-header {
+    img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      margin: 20px;
+    }
+  }
+
+  .container header .cover {
+    display: none;
   }
   @media (max-width: 640px) {
     .container > div {
+      display: block;
+    }
+    .container header {
       display: block;
     }
   }
@@ -173,18 +183,25 @@ if (database.Icon && database.Icon.Type === 'file') {
     flex: 1;
     order: 2;
     justify-content: space-between;
+    max-width: 600px;
+    margin: 0 auto;
   }
   @media (max-width: 640px) {
     main {
       order: 1;
+      margin-top: 60px;
     }
   }
 
   aside {
-    order: 1;
+    order: 2;
     width: 300px;
-    padding: 20px 20px;
     background-color: #f4f4f4;
+    border-left: 1px solid #e4e4e4;
+  }
+
+  aside .contents {
+    padding: 20px 20px;
   }
   @media (max-width: 640px) {
     aside {
@@ -202,7 +219,16 @@ if (database.Icon && database.Icon.Type === 'file') {
     object-fit: cover;
     object-position: center 60%;
   }
-
+  aside .cover img {
+    display: block;
+    width: 100%;
+    height: 64px;
+    object-fit: cover;
+    object-position: center 30%;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
   div.content {
     padding: 20px 40px;
   }
@@ -256,11 +282,6 @@ if (database.Icon && database.Icon.Type === 'file') {
     text-align: center;
     font-size: 0.75rem;
   }
-  @media (max-width: 640px) {
-    main footer {
-      margin: 0 auto 30px;
-    }
-  }
   main footer span {
     color: #777;
   }
@@ -276,6 +297,7 @@ if (database.Icon && database.Icon.Type === 'file') {
     --gap-half: 0.5rem;
     --gap: 1rem;
     --gap-double: 2rem;
+    --accent: #006494;
 
     --bg: #fff;
     --fg: #333;
@@ -310,14 +332,28 @@ if (database.Icon && database.Icon.Type === 'file') {
     min-height: 100vh;
     background: var(--bg);
     color: var(--fg);
-    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-      Helvetica, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
-      'Hiragino Sans GB', メイリオ, Meiryo, 'Apple Color Emoji', Arial,
-      sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-family:
+      ui-sans-serif,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Helvetica,
+      'Hiragino Sans',
+      'Hiragino Kaku Gothic ProN',
+      'Hiragino Sans GB',
+      メイリオ,
+      Meiryo,
+      'Apple Color Emoji',
+      Arial,
+      sans-serif,
+      'Segoe UI Emoji',
+      'Segoe UI Symbol';
 
     /*background-image: radial-gradient(#ddd 1px, transparent 1px),
       radial-gradient(#ddd 1px, transparent 1px);*/
-    background-position: 0 0, 25px 25px;
+    background-position:
+      0 0,
+      25px 25px;
     background-attachment: fixed;
     background-size: 50px 50px;
 

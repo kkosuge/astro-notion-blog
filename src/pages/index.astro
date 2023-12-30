@@ -1,26 +1,22 @@
 ---
-import { NUMBER_OF_POSTS_PER_PAGE } from '../server-constants.ts'
+import Layout from '../layouts/Layout.astro'
+import styles from '../styles/blog.module.css'
 import {
   getPosts,
   getRankedPosts,
   getAllTags,
   getNumberOfPages,
 } from '../lib/notion/client.ts'
-import Layout from '../layouts/Layout.astro'
-import NoContents from '../components/NoContents.astro'
-import PostDate from '../components/PostDate.astro'
-import PostTags from '../components/PostTags.astro'
-import PostTitle from '../components/PostTitle.astro'
-import PostFeaturedImage from '../components/PostFeaturedImage.astro'
-import PostExcerpt from '../components/PostExcerpt.astro'
-import ReadMoreLink from '../components/ReadMoreLink.astro'
-import Pagination from '../components/Pagination.astro'
-import BlogPostsLink from '../components/BlogPostsLink.astro'
+import { format } from 'date-fns'
+import kkosuge from '../images/kkosuge.png'
+import fugu from '../images/fugu.jpg'
+import shirley from '../images/shirley.jpg'
+import tesla from '../images/tesla.jpg'
+import { Image } from 'astro:assets'
 import BlogTagsLink from '../components/BlogTagsLink.astro'
-import styles from '../styles/blog.module.css'
 
 const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
-  getPosts(NUMBER_OF_POSTS_PER_PAGE),
+  getPosts(25),
   getRankedPosts(),
   getAllTags(),
   getNumberOfPages(),
@@ -29,30 +25,115 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
 
 <Layout>
   <div slot="main" class={styles.main}>
-    {
-      posts.length === 0 ? (
-        <NoContents contents={posts} />
-      ) : (
-        posts.map((post) => (
-          <div class={styles.post} key={post.Slug}>
-            <PostDate post={post} />
-            <PostTags post={post} />
-            <PostTitle post={post} />
-            <PostFeaturedImage post={post} />
-            <PostExcerpt post={post} />
-            <ReadMoreLink post={post} />
+    <div class="flex gap-4 flex-col">
+      <section class="flex gap-2">
+        <Image
+          src={kkosuge}
+          alt="kkosuge"
+          class="w-24 h-24 border-2 border-white"
+        />
+        <Image
+          src={tesla}
+          alt="テスラ"
+          class="w-24 h-24 border-2 border-white"
+        />
+        <Image src={fugu} alt="フグ" class="w-24 h-24 border-2 border-white" />
+        <Image
+          src={shirley}
+          alt="シャリ"
+          class="w-24 h-24 border-2 border-white"
+        />
+      </section>
+
+      <div class="px-4 flex flex-col gap-4">
+        <section class="mt-6">
+          <h3>About</h3>
+          <div class="mt-2 text-sm">関東在住のソフトウェアエンジニア</div>
+        </section>
+
+        <section>
+          <h3>SNS</h3>
+          <div class="flex gap-2 items-center mt-2">
+            <a
+              href="https://x.com/9m"
+              target="_blank"
+              class="flex gap-2 items-center bg-black text-white px-3 hover:opacity-80"
+            >
+              <div class="font-bold">𝕏</div><div class="text-sm">@9m</div>
+            </a>
+            <a
+              href="https://www.instagram.com/kkosuge/"
+              target="_blank"
+              class="flex gap-2 items-center instagram px-3 hover:opacity-80"
+            >
+              <div class="font-bold">Instagram</div><div class="text-sm">
+                @kkosuge
+              </div>
+            </a>
           </div>
-        ))
-      )
-    }
+        </section>
 
-    <footer>
-      <Pagination currentPage={1} numberOfPages={numberOfPages} />
-    </footer>
-  </div>
-
-  <div slot="aside" class={styles.aside}>
-    <BlogPostsLink heading="Recommended" posts={rankedPosts} />
-    <BlogTagsLink heading="Categories" tags={tags} />
+        <section>
+          <h3>Posts</h3>
+          <div class="flex gap-1 flex-col mt-1">
+            {
+              posts.map((post) => (
+                <a href={`/posts/${post.Slug}`} class="hover:opacity-80">
+                  <div class="flex gap-3 items-center">
+                    <time class="opacity-60 text-xs" datetime={post.Date}>
+                      {format(post.Date, 'yyyy-MM-dd')}
+                    </time>
+                    <div class="text-sm">
+                      {post.Icon && post.Icon.Type === 'emoji' ? (
+                        <>
+                          <span class="w-4 h-4 inline-block mr-1">
+                            {post.Icon.Emoji}
+                          </span>
+                          {post.Title}
+                        </>
+                      ) : post.Icon && post.Icon.Type === 'external' ? (
+                        <>
+                          <img
+                            src={post.Icon.Url}
+                            alt="Post title icon in a link list"
+                            class="w-4 h-4 inline-block mr-1"
+                          />
+                          {post.Title}
+                        </>
+                      ) : (
+                        post.Title
+                      )}
+                    </div>
+                  </div>
+                </a>
+              ))
+            }
+          </div>
+        </section>
+      </div>
+    </div>
   </div>
 </Layout>
+
+<style>
+  h3 {
+    font-weight: bold;
+    font-size: 1rem;
+    &:before {
+      content: '#';
+      color: var(--accent);
+      margin-left: -1rem;
+      margin-right: 0.2rem;
+    }
+  }
+  .instagram {
+    background: linear-gradient(
+      to right,
+      rgba(247, 207, 0, 0.7),
+      rgba(246, 37, 2, 0.7) 45%,
+      rgba(182, 47, 82, 0.7) 75%,
+      rgba(113, 58, 166, 0.7)
+    );
+    color: #fff;
+  }
+</style>
