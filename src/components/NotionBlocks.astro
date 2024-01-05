@@ -100,7 +100,7 @@ const bookmarkURLs = blocks
     ['bookmark', 'link_preview', 'embed'].includes(b.Type)
   )
   .map((b: interfaces.Block) => {
-    const urlString = (b.Bookmark || b.LinkPreview || b.Embed)!.Url
+    const urlString = (b.Bookmark || b.LinkPreview || b.Embed).Url
 
     let url: URL
     try {
@@ -110,7 +110,7 @@ const bookmarkURLs = blocks
     }
     return url
   })
-  .filter((url: URL) => url && !isTweetURL(url)) // && !isAmazonURL(url))
+  .filter((url: URL) => url && !isTweetURL(url) && !isAmazonURL(url))
 
 const bookmarkURLMap = await buildURLToHTMLMap(bookmarkURLs)
 ---
