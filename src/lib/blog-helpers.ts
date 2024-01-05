@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+import { chromium } from '@playwright/test'
 import { BASE_PATH, REQUEST_TIMEOUT_MS } from '../server-constants'
 import type {
   Block,
@@ -86,6 +87,15 @@ const _extractTargetBlockFromColums = (
     .flat()
 }
 
+async function getAmazonHtml(url: string) {
+  const browser = await chromium.launch()
+  const page = await browser.newPage()
+  await page.goto(url, { waitUntil: 'load' })
+  const html = await page.content()
+  await browser.close()
+  return html
+}
+
 export const buildURLToHTMLMap = async (
   urls: URL[]
 ): Promise<{ [key: string]: string }> => {
@@ -96,17 +106,31 @@ export const buildURLToHTMLMap = async (
         controller.abort()
       }, REQUEST_TIMEOUT_MS)
 
-      return fetch(url.toString(), { signal: controller.signal })
-        .then((res) => {
-          return res.text()
-        })
-        .catch(() => {
-          console.log('Request was aborted')
-          return ''
-        })
-        .finally(() => {
-          clearTimeout(timeout)
-        })
+      if (isAmazonURL(url)) {
+        return getAmazonHtml(url.toString())
+          .then((html) => {
+            return html
+          })
+          .catch(() => {
+            console.log('Request was aborted')
+            return ''
+          })
+          .finally(() => {
+            clearTimeout(timeout)
+          })
+      } else {
+        return fetch(url.toString(), { signal: controller.signal })
+          .then((res) => {
+            return res.text()
+          })
+          .catch(() => {
+            console.log('Request was aborted')
+            return ''
+          })
+          .finally(() => {
+            clearTimeout(timeout)
+          })
+      }
     })
   )
 
@@ -246,6 +270,7 @@ export const isFullAmazonURL = (url: URL): boolean => {
   return false
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const isAmazonURL = (url: URL): boolean => {
   return isShortAmazonURL(url) || isFullAmazonURL(url)
 }

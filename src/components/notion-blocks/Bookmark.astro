@@ -1,5 +1,6 @@
 ---
 import createMetascraper from 'metascraper'
+import metascraperAmazon from 'metascraper-amazon'
 import metascraperDescription from 'metascraper-description'
 import metascraperImage from 'metascraper-image'
 import metascraperTitle from 'metascraper-title'
@@ -13,23 +14,24 @@ export interface Props {
 
 const { block, urlMap } = Astro.props
 
-const urlString = (block.Bookmark || block.LinkPreview || block.Embed).Url
+const urlString = (block.Bookmark || block.LinkPreview || block.Embed)!.Url
 
 let url: URL
 let metadata: Record<string, string>
 try {
   url = new URL(urlString)
 
-  if (!isAmazonURL(url)) {
-    const metascraper = createMetascraper([
-      metascraperDescription(),
-      metascraperImage(),
-      metascraperTitle(),
-    ])
-    const html = urlMap[url.toString()]
-    if (html) {
-      metadata = await metascraper({ html, url })
-    }
+  const metascraper = createMetascraper([
+    metascraperDescription(),
+    metascraperImage(),
+    metascraperTitle(),
+    metascraperAmazon(),
+  ])
+
+  const html = urlMap[url.toString()]
+
+  if (html) {
+    metadata = await metascraper({ html, url })
   }
 } catch (err) {
   console.log(err)
@@ -39,7 +41,7 @@ try {
 {
   url && (
     <>
-      {isAmazonURL(url) ? (
+      {false && isAmazonURL(url) ? (
         <div class="no-metadata">
           <a href={url.toString()}>{url.toString()}</a>
         </div>
