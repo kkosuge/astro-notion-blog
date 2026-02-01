@@ -1,13 +1,13 @@
 ---
-import { PUBLIC_GA_TRACKING_ID, ENABLE_LIGHTBOX } from '../server-constants.ts'
+import { filePath, getNavLink, getStaticFilePath } from '../lib/blog-helpers.ts'
 import { getDatabase } from '../lib/notion/client.ts'
-import { getNavLink, getStaticFilePath, filePath } from '../lib/blog-helpers.ts'
+import { ENABLE_LIGHTBOX, PUBLIC_GA_TRACKING_ID } from '../server-constants.ts'
 import '../styles/syntax-coloring.css'
-import GoogleAnalytics from '../components/GoogleAnalytics.astro'
-import SearchModal from '../components/SearchModal.astro'
-import SearchButton from '../components/SearchButton.astro'
-import icon from '../images/icon.jpg'
 import { Image } from 'astro:assets'
+import GoogleAnalytics from '../components/GoogleAnalytics.astro'
+import SearchButton from '../components/SearchButton.astro'
+import SearchModal from '../components/SearchModal.astro'
+import icon from '../images/icon.jpg'
 
 export interface Props {
   title: string
@@ -99,33 +99,11 @@ if (database.Icon && database.Icon.Type === 'file') {
   <body>
     <GoogleAnalytics trackingId={PUBLIC_GA_TRACKING_ID} />
     <div>
-      <header class="relative pt-6">
-        <a class="hover:opacity-80" href="/">
-          <Image
-            src={icon}
-            alt="icon"
-            class="border-4 border-white w-16 h-16 absolute rounded-full top-2 left-4"
-          /></a
-        >
-
-        <div class="absolute top-2 right-4">
-          <SearchButton />
-        </div>
-      </header>
 
       <div>
         <main>
           <div class="content">
             <slot name="main" />
-
-            <footer>
-              <div>
-                <span>Powered by&nbsp;</span>
-                <a href="https://github.com/otoyo/astro-notion-blog"
-                  >astro-notion-blog</a
-                >
-              </div>
-            </footer>
           </div>
         </main>
 
@@ -137,7 +115,6 @@ if (database.Icon && database.Icon.Type === 'file') {
       </div>
     </div>
 
-    <SearchModal />
     {
       ENABLE_LIGHTBOX && (
         <script src={getStaticFilePath('/scripts/fslightbox.js')} />
@@ -180,11 +157,11 @@ if (database.Icon && database.Icon.Type === 'file') {
   }
 
   main {
-    flex: 1;
-    order: 2;
-    justify-content: space-between;
-    max-width: 600px;
-    margin: 0 auto;
+    /* flex: 1; */
+    /* order: 2; */
+    /* justify-content: space-between; */
+    /* max-width: 600px; */
+    /* margin: 0 auto; */
   }
   @media (max-width: 640px) {
     main {
