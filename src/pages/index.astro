@@ -1,19 +1,19 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import styles from '../styles/blog.module.css'
-import {
-  getPosts,
-  getRankedPosts,
-  getAllTags,
-  getNumberOfPages,
-} from '../lib/notion/client.ts'
+import { Image } from 'astro:assets'
 import { format } from 'date-fns'
-import kkosuge from '../images/kkosuge.png'
+import BlogTagsLink from '../components/BlogTagsLink.astro'
 import fugu from '../images/fugu.jpg'
+import kkosuge from '../images/kkosuge.png'
 import shirley from '../images/shirley.jpg'
 import tesla from '../images/tesla.jpg'
-import { Image } from 'astro:assets'
-import BlogTagsLink from '../components/BlogTagsLink.astro'
+import Layout from '../layouts/Layout.astro'
+import {
+  getAllTags,
+  getNumberOfPages,
+  getPosts,
+  getRankedPosts,
+} from '../lib/notion/client.ts'
+import styles from '../styles/blog.module.css'
 
 const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
   getPosts(25),
@@ -46,10 +46,6 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
       </section>
 
       <div class="px-4 flex flex-col gap-4">
-        <section class="mt-6">
-          <h3>About</h3>
-          <div class="mt-2 text-sm">関東在住のソフトウェアエンジニア</div>
-        </section>
 
         <section>
           <h3>SNS</h3>
@@ -70,44 +66,6 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
                 @kkosuge
               </div>
             </a>
-          </div>
-        </section>
-
-        <section>
-          <h3>Posts</h3>
-          <div class="flex gap-1 flex-col mt-1">
-            {
-              posts.map((post) => (
-                <a href={`/posts/${post.Slug}`} class="hover:opacity-80">
-                  <div class="flex gap-3 items-center">
-                    <time class="opacity-60 text-xs" datetime={post.Date}>
-                      {format(post.Date, 'yyyy-MM-dd')}
-                    </time>
-                    <div class="text-sm">
-                      {post.Icon && post.Icon.Type === 'emoji' ? (
-                        <>
-                          <span class="w-4 h-4 inline-block mr-1">
-                            {post.Icon.Emoji}
-                          </span>
-                          {post.Title}
-                        </>
-                      ) : post.Icon && post.Icon.Type === 'external' ? (
-                        <>
-                          <img
-                            src={post.Icon.Url}
-                            alt="Post title icon in a link list"
-                            class="w-4 h-4 inline-block mr-1"
-                          />
-                          {post.Title}
-                        </>
-                      ) : (
-                        post.Title
-                      )}
-                    </div>
-                  </div>
-                </a>
-              ))
-            }
           </div>
         </section>
       </div>
